@@ -1,2 +1,4 @@
-# w266-finance-word-embedding
-W266 Final Group Project:  Vinicio De Sola, Pri Nonis &amp; Kevin Hanna
+W266 Summer 2019 Final Group Project:  Financial Domain Specific Word Embedding
+- Vinicio De Sola
+- Pri Nonis
+- Kevin Hanna
