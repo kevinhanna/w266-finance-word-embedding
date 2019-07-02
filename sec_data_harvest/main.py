@@ -1,6 +1,9 @@
 import csv
 import sys
+import time
+
 from sec_edgar_downloader import Downloader
+
 
 
 def get_cik_codes():
@@ -15,19 +18,32 @@ def get_cik_codes():
 
 
 def fetch_statements(cik, downloader):
-    print("Fetching CIK: {}".format(cik))
-    downloader.get_all_available_filings(cik, 1)
+    downloader.get_10k_filings(cik)
 
 
 def main(*args):
+    start_at = 13139  # To restart at a specific point
+
+    total_time = 0
+    total_filings = start_at or 0
     edgar_dl = Downloader("/home/khanna/Transfer/financial_reports")
 
     all_cik_codes = get_cik_codes()
 
-    for i in range(len(all_cik_codes)):
+    for i in range(start_at, len(all_cik_codes)):
         cik = all_cik_codes[i]
-        print("Fetching CIK: {}  {} of {}".format(cik, i, len(all_cik_codes)))
+
+        start = time.time()
         fetch_statements(cik, edgar_dl)
+        end = time.time()
+
+        total_filings += 1
+        total_time += end-start
+        avg_time = total_time/(total_filings - start_at)
+        eta_minutes = (avg_time/60) * (len(all_cik_codes) - total_filings)
+
+        print("Done Fetching CIK: '{0}'  {1} of {2}.  ETA {3:0.0f} minutes.".format(cik, total_filings, len(all_cik_codes), eta_minutes))
+
 
 
 if __name__ == '__main__':
