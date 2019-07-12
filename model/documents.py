@@ -25,6 +25,7 @@ class Codes:
 
         return cik_codes
 
+
 class Sec_10K:
     user_project = 'w266-kevinhanna' # This needs to be a projec
     storage_bucket = "sec_raw_data"
