@@ -8,7 +8,7 @@ def main(*args):
     ten_k = documents.Sec_10K()
 
     # Get a list of 10-K's (just grabbing the first CIK)
-    filings = ten_k.get_available_10k_filings(ciks[0])
+    yearly_filing_files = ten_k.get_available_10k_filings('1001039')
 
     # Can iterate though filings
     # for year, filename in filings.items():
@@ -16,11 +16,11 @@ def main(*args):
     #     print("tmp_file: {}".format(ten_k.get_filing(filename)))
 
     # Parse the file (currently just strips XML tags
-    file_string = filing_parsers.quick_parse(ten_k.get_filing(filings[2018]))
+    file_string = filing_parsers.test_parse(ten_k.get_filing(yearly_filing_files[2018]))
 
     # Put the file somewhere, this will be BigQuery or Cloud Storage
     foo_file = "/tmp/foo.txt"
-    with open(foo_file, "wb") as file_obj:
+    with open(foo_file, "w") as file_obj:
         file_obj.write(file_string)
 
 

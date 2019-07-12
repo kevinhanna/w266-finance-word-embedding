@@ -51,9 +51,10 @@ class Sec_10K:
         return self.__format_sort_filings(blobs)
 
 
-    def get_filing(self, filename, tmp_dir=None):
+    def get_filing(self, filepath, tmp_dir=None):
         """
-        :param filename: full path to file
+        :param filepath: full path to file
+        :param tmp_dir: A temporary directory to store temporary (need to manually delete them when done)
         :return: Filename to downloaded filing
         """
 
@@ -61,9 +62,9 @@ class Sec_10K:
             tmp_dir = self.tmp_dir
 
         bucket = self.storage_client.bucket(self.storage_bucket, self.user_project)
-        blob = storage.Blob(filename, bucket)
+        blob = storage.Blob(filepath, bucket)
 
-        tmp_filename = tmp_dir + "/" + filename
+        tmp_filename = tmp_dir + "/" + filepath
         print(tmp_filename)
 
         os.makedirs(os.path.dirname(tmp_filename), exist_ok=True)
