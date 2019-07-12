@@ -5,7 +5,7 @@ import time
 from google.cloud import storage
 
 base_local_dir = "/home/khanna/Transfer/financial_reports/sec_edgar_filings/"
-base_dest_dir = "sec_edgar_filings/"
+base_dest_dir = "kevin_sandbox/"
 
 def get_cik_codes():
     cik_codes = []
@@ -27,7 +27,6 @@ def get_cl_client():
 def upload_10_k():
     bucket_name = "sec_raw_data"
     user_project = 'w266-kevinhanna' # This needs to be a projec
-
 
     start_at = 6158  # To restart at a specific point
 
