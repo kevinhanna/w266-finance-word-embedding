@@ -6,20 +6,24 @@ from parsers import filing_parsers
 
 def main(*args):
     ciks = documents.Codes.get_cik_codes()
-    ten_k = documents.Sec_10K()
+    ten_k_filing = documents.Sec10kFilings()
 
-    cik = '1001039'
-    year = 2018
+    cik = '6201'
+    year = 1995
     # Get a list of 10-K's (just grabbing the first CIK)
-    yearly_filing_files = ten_k.get_available_10k_filings(cik)
+    yearly_filing_files = ten_k_filing.get_available_10k_filings(cik)
 
     # Can iterate though filings
     # for year, filename in filings.items():
     #     print("year: {}  filename: {}".format(year, filename))
-    #     print("tmp_file: {}".format(ten_k.get_filing(filename)))
+    #     print("tmp_file: {}".format(ten_k.fetch_10k_filing(filename)))
 
-    # Parse the file (currently just strips XML tags
-    parsed_filing = filing_parsers.parse_10k(ten_k.get_filing(yearly_filing_files[year]))
+    parsed_filing = filing_parsers.parse_10k(ten_k_filing.fetch_10k_filing(yearly_filing_files[year]), cik, year)
+
+    # Store documents
+    new_10k = documents.Sec10k(parsed_filing.get('headers'), parsed_filing.get('documents'))
+    new_10k.save()
+
 
     # Print Headers:
     headers = parsed_filing.get('headers')
@@ -48,8 +52,6 @@ def main(*args):
     # foo_file = "/tmp/foo.txt"
     # with open(foo_file, "w") as file_obj:
     #     file_obj.write(file_string)
-
-
 
 if __name__ == '__main__':
     main(*sys.argv)
