@@ -32,6 +32,7 @@ def parse_10k(filepath, cik, year):
 
 
 def __parse_documents(soup):
+    import time
     # Get all the douments
 
     result_documents = []
@@ -40,10 +41,17 @@ def __parse_documents(soup):
     for doc in documents:
 
         type_node = doc.find('type')
-        type_text = type_node.contents[0].strip()
+        if type_node:
+            type_text = type_node.contents[0].strip()
+            desc_node = type_node.find('description')
+        else:
+            type_text = 'NA'
+
         seq_node = doc.find('sequence')
-        seq_text = seq_node.contents[0].strip()
-        desc_node = type_node.find('description')
+        if seq_node:
+            seq_text = seq_node.contents[0].strip()
+        else:
+            seq_text = str(int(time.time()))[-6:]
 
         if desc_node:
             desc_text = desc_node.contents[0]

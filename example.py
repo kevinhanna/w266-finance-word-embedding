@@ -8,7 +8,7 @@ def main(*args):
     ciks = documents.Codes.get_cik_codes()
     ten_k_filing = documents.Sec10kFilings()
 
-    cik = '6201'
+    cik = '320193'
     year = 1995
     # Get a list of 10-K's (just grabbing the first CIK)
     yearly_filing_files = ten_k_filing.get_available_10k_filings(cik)
