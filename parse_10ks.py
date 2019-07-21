@@ -29,18 +29,23 @@ def main(*args):
         yearly_filing_files = ten_k_filing.get_available_10k_filings(cik)
 
         for year, filename in yearly_filing_files.items():
-            logging.info("Parsing cik: {}  year: {}".format(cik, year))
-            local_tmp_dir = '/tmp'
-            filepath = ten_k_filing.fetch_10k_filing(filename, local_tmp_dir=local_tmp_dir)
-            parsed_filing = filing_parsers.parse_10k(filepath, cik, year)
+            try:
+                logging.info("Parsing cik: {}  year: {}".format(cik, year))
+                local_tmp_dir = '/tmp'
+                filepath = ten_k_filing.fetch_10k_filing(filename, local_tmp_dir=local_tmp_dir)
+                parsed_filing = filing_parsers.parse_10k(filepath, cik, year)
 
-            # Store documents
-            new_10k = documents.Sec10k(parsed_filing.get('headers'), parsed_filing.get('documents'))
-            new_10k.save()
+                # Store documents
+                new_10k = documents.Sec10k(parsed_filing.get('headers'), parsed_filing.get('documents'))
+                new_10k.save()
 
-            # Cleanup tmp file
-            os.remove(local_tmp_dir + "/" + filename)
-
+                # Cleanup tmp file
+                os.remove(local_tmp_dir + "/" + filename)
+            # Log it and continue
+            except Exception as e:
+                logging.error("Unexpected error:", sys.exc_info()[0])
+            except:
+                logging.error("Unexpected error:", sys.exc_info()[0])
 
 
 
