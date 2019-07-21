@@ -9,7 +9,7 @@ from parsers import filing_parsers
 def main(*args):
     ciks = documents.Codes.get_cik_codes()
     ten_k_filing = documents.Sec10kFilings()
-    start_at = '1090872'
+    start_at = '825313'
     stop_at = '906113'
 
     do_parse = False

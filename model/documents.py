@@ -4,6 +4,11 @@ import os
 from google.cloud import storage, bigquery
 from collections import OrderedDict
 
+"""
+This is ugly, but it's only meant to be run once.
+"""
+
+
 def get_storage_client():
     dirname = os.path.dirname(__file__)
     client = storage.Client.from_service_account_json(
@@ -113,14 +118,14 @@ class Sec10k:
                  ten_k_documents,
                  user_project='w266-kevinhanna',
                  storage_bucket="sec_raw_data",
-                 cs_destination_dir="sec_edgar_filings/",
+                 # cs_destination_dir="sec_edgar_filings/",
                  ):
 
         self.meta_data = meta_data
         self.ten_k_documents = ten_k_documents
         self.user_project = user_project
         self.storage_bucket = storage_bucket
-        self.cs_destination_dir = cs_destination_dir
+        # self.cs_destination_dir = cs_destination_dir
 
         self.bigquery_client = get_bigquery_client()
         self.storage_client = get_storage_client()
@@ -179,7 +184,6 @@ class Sec10k:
             for error in errors:
                 logging.error("Error streaming logs to table_id: {}  Error:{}".format(self.__documents_table_id, error))
 
-
         if self.meta_data['accession_number']:
             accession_number = self.meta_data['accession_number']
         else:
@@ -221,3 +225,89 @@ class Sec10k:
         if errors:
             for error in errors:
                 logging.error("Error streaming logs to table_id: {}  Error:{}".format(self.__meta_table_id, error))
+
+
+class CorpusBuilder:
+
+    def __init__(self):
+        self.corpus_set = None
+        self.bigquery_client = get_bigquery_client()
+        self.storage_client = get_storage_client()
+
+        self.__bucket_name = "sec_parsed_data"
+        self.user_project = "w266-kevinhanna"
+
+    def get_by_cik_year(self, cik, year):
+        # Perform a query.
+        QUERY = (
+            'SELECT CIK, Year, DocumentType, DocumentURI, Description '
+            'FROM `w266-kevinhanna.finance_embedding.10KDocuments` '
+            'WHERE CIK = "1340282" '
+            'ORDER BY Year, DocumentType ASC'
+        )
+        query_job = self.bigquery_client.query(QUERY)  # API request
+        rows = query_job.result()  # Waits for query to finish
+
+        self.corpus_set = rows
+
+        return self.corpus_set
+        # for row in rows:
+        #     print(row.DocumentURI)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        row = next(self.corpus_set)
+
+        if not row:
+            return None
+
+        print(row.get('DocumentURI'))
+
+        document = self.__fetch_document(row.DocumentURI)
+        return document
+
+
+    def fetch_document_old(self, document_uri):
+        from io import BytesIO
+
+        bucket = self.storage_client.bucket(self.__bucket_name, self.user_project)
+
+        # bucket = self.storage_client.get_bucket(self.__bucket_name, self.user_project)
+        # blob = bucket.get_blob(document_uri)
+        blob = storage.Blob(document_uri, bucket)
+
+        string_buffer = BytesIO()
+        blob.download_to_file(string_buffer)
+
+        self.storage_client.download_blob_to_file(blob, string_buffer)
+
+        return string_buffer.getvalue()
+
+        # document_string = blob.download_as_string()
+        # return document_string
+
+        # bucket = self.storage_client.bucket(self.storage_bucket, self.user_project)
+        # blob = storage.Blob(filepath, bucket)
+
+    def fetch_document_foo(self, document_uri):
+        from io import BytesIO
+
+
+        bucket = self.storage_client.bucket(self.__bucket_name, self.user_project)
+
+        # bucket = self.storage_client.bucket(self.storage_bucket, self.user_project)
+        blob = storage.Blob(document_uri, bucket)
+
+        string_buffer = BytesIO()
+
+        self.storage_client.download_blob_to_file(blob, string_buffer)
+
+        return string_buffer.getvalue()
+
+    def fetch_document(self, document_uri):
+        bucket = self.storage_client.bucket(self.__bucket_name, "w266-kevinhanna")
+        blob = storage.Blob(document_uri, bucket)
+
+        return blob.download_as_string()
